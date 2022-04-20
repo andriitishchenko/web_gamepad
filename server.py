@@ -49,7 +49,7 @@ try:
     st.connect(('8.8.8.8', 1))
     local_ip = st.getsockname()[0]
 except Exception:
-    Ilocal_ipP = '127.0.0.1'
+    local_ip = '127.0.0.1'
 finally:
     st.close()
 
