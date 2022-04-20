@@ -46,7 +46,7 @@ WSPORT = 8765
 
 st = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 try:       
-    st.connect(('10.255.255.255', 1))
+    st.connect(('8.8.8.8', 1))
     local_ip = st.getsockname()[0]
 except Exception:
     Ilocal_ipP = '127.0.0.1'
