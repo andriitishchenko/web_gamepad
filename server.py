@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import sys
 import asyncio
-# from turtle import right
 import websockets
 
 import http.server
@@ -11,9 +10,14 @@ from threading import Thread
 import socket
 import json
 
-
 from pynput.keyboard import Key, Controller,KeyCode
 import time
+
+
+import qrcode
+from PIL import Image
+import io
+
 
 # https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/keyCode
 keyCodeMap = {
@@ -43,9 +47,28 @@ PORT = 8000
 
 WSPORT = 8765
 
-hostname = socket.gethostname()
-local_ip = socket.gethostbyname(hostname)
 
+st = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+try:       
+    st.connect(('10.255.255.255', 1))
+    local_ip = st.getsockname()[0]
+except Exception:
+    Ilocal_ipP = '127.0.0.1'
+finally:
+    st.close()
+
+# = = = = = = ==  ==  
+qr = qrcode.QRCode(
+    version=1,
+    error_correction=qrcode.constants.ERROR_CORRECT_L,
+    box_size=10,
+    border=4,
+)
+qr.add_data(f"http://{local_ip}:{PORT}")
+qr.make(fit=True)
+img = qr.make_image(fill_color="black", back_color="white")
+img.show()
+# = = = = = = ==  ==  
 
 keyState = {}
 
@@ -83,7 +106,7 @@ def keydown_thread():
             for k, v in keyState.items():
                 key = int(k)
                 isEvent = False
-                
+
                 if k in procesed:
                     p_v = procesed[k]
                     

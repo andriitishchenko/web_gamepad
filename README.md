@@ -43,3 +43,4 @@ TODO:
 0 convert script to app (Automator??)
 1 add second gamepad
 2 add sega gamepad
+3 add qr code for URL to connect

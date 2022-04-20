@@ -1,3 +1,5 @@
 # pip3 install -r requirements.txt
 websockets
 asyncio
+qrcode[pil]
+pillow
