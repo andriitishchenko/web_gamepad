@@ -13,11 +13,7 @@ import json
 from pynput.keyboard import Key, Controller,KeyCode
 import time
 
-
 import qrcode
-from PIL import Image
-import io
-
 
 # https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/keyCode
 keyCodeMap = {
@@ -136,59 +132,3 @@ async def main():
         pass
 
 asyncio.run(main())
-
-
-# a = 122
-# print(a)
-# k = hex(a)
-# print(k)
-
-# print(int(90, 16))
-# kk = KeyCode.from_vk(int(k, 16))
-# # kk = KeyCode.from_vk(0x5a)
-# print(kk)
-
-# k2 = KeyCode.from_char("z")
-# print(k2)
-
-# k4 = KeyCode.from_vk(Key.down)
-# print(k4.vk)
-
-# for k in range(0, 256) :
-#     k3 = KeyCode.from_vk(hex(k))
-#     k4 = KeyCode.from_vk(Key.down)
-
-#     # print(f"{k}    {k3} ==== {k4}")
-
-#     if k3 == k4:
-#         print(k)
-
-
-# vv = Key.up.value
-# print(vv)
-
-# print(hex(int(vv))
-# print(chr(vv))
-
-
-
-# k3 = KeyCode.from_vk(Key.up)
-# k3 = KeyCode.from_vk(int('0x5a', 16) )
-# k3 = KeyCode.from_char(chr(13))
-# k3 = KeyCode.from_char("z")
-# print(k3)
-
-# keyboard.press(Key.up)
-# keyboard.press(k3)
-# keyboard.press(k3)
-# keyboard.press(k3)
-# keyboard.press(k3)
-# keyboard.press(k3)
-# keyboard.press(k3)
-# keyboard.press(k3)
-
-# keyboard.release(k3)
-
-# # if kk == KeyCode.from_char("z"):
-# #     print("EQAL")
-
