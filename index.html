@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <!-- <meta name="viewport" content="width=device-width, initial-scale=1"> -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <style>
+
+*{
+  padding:0;
+  margin: 0;
+  touch-action: none;
+}
+
+html{
+  background: steelblue;
+  height: 100%;
+  width: 100%;
+  top:0; left:0; bottom: 0; right:0;
+}
+
+
+#keyboard {
+  background:#333;
+  padding:0;
+  margin: 0;
+}
+
+.keyboard{
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  top:0; left:0; bottom: 0; right:0;
+}
+
+.key {
+  width:10%;
+  aspect-ratio: 1/1;
+  background: #aee;
+  position: absolute;
+  display: block;
+}
+.key.down {
+  background: #aae;
+}
+
+.btn_up{
+  top: 50%;
+  left: 15%;
+  transform: translate(0, -150%);
+}
+.btn_down{
+  bottom: 50%;
+  left: 15%;
+  transform: translate(0, 150%);
+}
+
+.btn_left{
+  top: 50%;
+  left: 5%;
+  transform: translate(0, -50%);
+}
+.btn_right{
+  top: 50%;
+  left: 25%;
+  transform: translate(0, -50%);
+}
+
+.btn_start{
+  bottom: 10%;
+  left: 50%;
+  transform: translate(-105%, 0);
+}
+.btn_select{
+  bottom: 10%;
+  left: 50%;
+}
+
+.btn_a_turbo{
+  top: 50%;
+  right: 25%;
+  transform: translate(0, -150%);
+}
+.btn_b_turbo{
+  top: 50%;
+  right: 5%;
+  transform: translate(0, -150%);
+}
+
+.btn_a{
+  top: 50%;
+  right: 25%;
+  transform: translate(0, 10%);
+}
+.btn_b{
+  top: 50%;
+  right: 5%;
+  transform: translate(0, 10%);
+}
+
+.srvc{
+  width:5%;
+  aspect-ratio: 1/1;  
+  position: absolute;
+  display: table;
+  border-radius: 50%;
+  text-align: center;
+  border: #aae 1px solid;
+}
+
+
+.srvc > span{
+  display: table-cell;
+  vertical-align: middle;
+  font-size: 4.2vw;
+}
+
+.settings{
+  background: rgb(122, 122, 122);
+  top: 10%;
+  left: 50%;
+  transform: translate(-105%, 0);
+}
+
+.status{
+  background: red;
+  display: block;
+  top: 10%;
+  left: 50%;
+}
+    </style>
+</head>
+<body>
+  
+  <div id="settings" class="srvc settings"><span>⚙</span></div>
+  <div id="status" class="srvc status"></div>
+
+<div id="keyboard">
+    <div k="2" class="key btn_up">↑</div>
+    <div k="1" class="key btn_left">←</div>
+    <div k="3" class="key btn_right">→</div>
+    <div k="4" class="key btn_down">↓</div>
+    <div k="5" class="key btn_start">STR</div>
+    <div k="6" class="key btn_select">SEL</div>
+    <div k="7" class="key btn_a">A</div>
+    <div k="8" class="key btn_b">B</div>
+    <div k="9" class="key btn_a_turbo">AA</div>
+    <div k="10" class="key btn_b_turbo">BB</div>
+    </div>
+
+    <script>
+
+
+
+var bindingKeys = {
+  1: 37, // left
+  2: 38, // up
+  3: 39, // right
+  4: 40, // down
+  5: 13, // start . Enter
+  6: 9, // select . Tab
+  7: 90, // btn a  . Z
+  8: 88, // btn b  . X
+  9: 65, // btn turbo a. A 
+  10:83, // btn turbo b. S
+};
+
+
+
+
+class currentAbc {
+  constructor (host) {
+    this.socket = new WebSocket(host);
+    this.socket.onopen =  function() {
+        console.log("Connected..");
+        this.isConnected = true;
+        onConnectionStatusChanged(true);
+      };
+
+    this.socket.onclose = function(event) {
+      if (event.wasClean) {
+        console.log('Closed');
+      } else {
+        console.log('Closed after error');
+      }
+      this.isConnected = false;
+      console.log('Code: ' + event.code + ' Reason: ' + event.reason);
+      onConnectionStatusChanged(false);
+    };
+
+    this.socket.onmessage = function(event) {
+      console.log("New data " + event.data);
+    };
+    
+    this.socket.onerror = function(error) {
+      console.log("Error " + error.message);
+    };
+  };
+
+    close(){
+      this.socket.close();
+    }
+
+    sendData(data) {
+      if(this.socket.isConnected){
+        console.log('Sending... ');
+        console.log(data);
+        this.socket.send(JSON.stringify(data));
+      }
+    }
+  };
+    
+
+  
+
+    var writeSocket = new currentAbc(`ws://${window.location.hostname}:8765/`);
+
+
+    // * * * * * * * * * * * * * * * * * * * * *
+    var keys = [].slice.call(document.querySelectorAll('.key'), 0);
+    var keyboard = document.getElementById('keyboard');
+    var touches = [];
+
+keyboard.addEventListener("touchstart", touchStart, false);
+keyboard.addEventListener("touchmove", touchMove, false);
+keyboard.addEventListener("touchend", touchEnd, false);
+
+function isKey(key) {
+	return keys.indexOf(key) >= 0;
+}
+
+function updateKeys() {
+  var payload = {};
+  Object.keys(bindingKeys).forEach(key => {
+    v = bindingKeys[key];
+    payload[v] = 0;
+  });
+
+	keys.forEach(function(key) {
+  	key.classList.remove("down");
+  });
+
+	touches.forEach(function(touch) {
+  	if (isKey(touch.key))
+    	touch.key.classList.add("down");
+      var key_id = touch.key.attributes.k.value;
+      var val = bindingKeys[key_id];
+      payload[val] = 1;
+  });
+  writeSocket.sendData(payload);
+}
+
+function touchStart(evt) {
+  evt.preventDefault();
+  var changedTouches = evt.changedTouches;   
+  for (var i = 0; i < changedTouches.length; i++) {
+    var key = changedTouches[i].target;
+    touches.push({ id : changedTouches[i].identifier, key: key });
+  }
+	updateKeys();
+}
+
+function touchEnd(evt) {
+  evt.preventDefault();
+  var changedTouches = evt.changedTouches;
+  for (var i = 0; i < changedTouches.length; i++) {
+    var index = getTouchIndex(changedTouches[i].identifier);
+    if (index >= 0) {
+    	touches.splice(index, 1);
+    }  
+  }
+  updateKeys();
+}
+
+function touchMove(evt) {
+  evt.preventDefault();
+  var changedTouches = evt.changedTouches;
+  for (var i = 0; i < changedTouches.length; i++) {
+		var touch = changedTouches[i];
+    var index = getTouchIndex(touch.identifier);
+    if (index >= 0) {
+    	var key = document.elementFromPoint(touch.pageX, touch.pageY);
+      if (isKey(key))
+    		touches[index].key = key;
+    }      
+  }
+  updateKeys();
+}
+
+function getTouchIndex(id) {
+  for (var i = 0; i < touches.length; i++) {
+    if (touches[i].id === id) {
+      return i;
+    }
+  }
+  return -1;
+}
+
+
+///////////////////
+
+
+let statusIndicator = document.getElementById("status");
+function onConnectionStatusChanged(isConnected){
+  if(isConnected){
+    statusIndicator.style.backgroundColor = "lime";
+  }
+  else{
+    statusIndicator.style.backgroundColor = "red";
+  }
+}
+
+
+let settingsButton = document.getElementById("settings");
+settingsButton.onclick = function() {
+  let host = prompt("Connection:", `ws://${window.location.hostname}:8765/`);
+  if(host){
+    writeSocket.close();
+    writeSocket = new currentAbc(host);
+  }
+
+  
+};
+
+
+
+document.body.addEventListener('touchmove', function(event) {
+  event.preventDefault();
+}, false);
+
+
+</script>
+</body>    
+</html>
