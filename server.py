@@ -15,6 +15,10 @@ import time
 
 import qrcode
 
+
+PORT = 8000
+WSPORT = 8765
+
 # https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/keyCode
 keyCodeMap = {
   37:Key.left,
@@ -23,25 +27,22 @@ keyCodeMap = {
   40:Key.down, 
   13:Key.enter,
   9: Key.tab, 
-  90:KeyCode.from_char("Z"), #  btn a  . Z
-  88:KeyCode.from_char("X"), #  btn b  . X
-  65:KeyCode.from_char("A"), #  btn turbo a . A 
-  83:KeyCode.from_char("S"), #  btn turbo b. S
+  90:KeyCode.from_char("z"), #  btn a  . Z
+  88:KeyCode.from_char("x"), #  btn b  . X
+  65:KeyCode.from_char("a"), #  btn turbo a . A 
+  83:KeyCode.from_char("s"), #  btn turbo b. S
 }
 
 keyboard = Controller()
 def pressKeyboardCode(key, isKyeUp=False):
     global keyCodeMap
-    # print(f"{key}")
+    # print(f"{key} {isKyeUp}")
     vk = keyCodeMap[key]
     if isKyeUp:
         keyboard.release(vk)
     else:
         keyboard.press(vk)
 
-PORT = 8000
-
-WSPORT = 8765
 
 
 st = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -72,7 +73,8 @@ keyState = {}
 class MyHttpRequestHandler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self):
         if self.path == '/':
-            self.path = f'index.html'
+            # self.path = f'index.html'
+            self.path = f'v2.html'
         return http.server.SimpleHTTPRequestHandler.do_GET(self)
 
 async def echo(websocket):
